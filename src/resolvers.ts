@@ -15,7 +15,7 @@ export const resolvers = {
     },
     // access just authenticated users
     users: (parent: any, params: any, context: any, info: any) => {
-      dataLayer.checkToken(context.accessToken)
+      dataLayer.checkToken(context.accessToken , context.jwsSecretKey)
       return dataLayer.getAllUsers();
     },
   },

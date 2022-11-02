@@ -55,8 +55,13 @@ export default class DataLayer {
     return { fullname: userInfo?.fullname };
   }
 
-  checkToken(accessToken: string): void {
+  checkToken(accessToken: string, secret: string): void {
     if (!accessToken || !this.userTokens.find((item) => item == accessToken))
-      throw new GraphQLError("Forbidden access");
+      throw new GraphQLError("Forbidden access - token is not provided");
+    try {
+      jwt.verify(accessToken, secret);
+    } catch (error) {
+      throw new GraphQLError("Forbidden access - token is not valid");
+    }
   }
 }
