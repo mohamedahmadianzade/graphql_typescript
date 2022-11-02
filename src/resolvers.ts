@@ -5,7 +5,7 @@ const dataLayer = new DataLayer();
 export const resolvers = {
   Query: {
     login: (parent: any, params: UserLogin, context: any, info: any) => {
-      return dataLayer.login(params);
+      return dataLayer.login(params , context.jwsSecretKey);
     },
     logs: (parent: any, params: any, context: any, info: any) => {
       return dataLayer.logs();
@@ -15,7 +15,7 @@ export const resolvers = {
     },
     // access just authenticated users
     users: (parent: any, params: any, context: any, info: any) => {
-      if (!context.accessToken) throw new GraphQLError("Forbidden access");
+      dataLayer.checkToken(context.accessToken)
       return dataLayer.getAllUsers();
     },
   },

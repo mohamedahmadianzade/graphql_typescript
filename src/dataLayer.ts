@@ -3,16 +3,35 @@ import UserLogin from "./interfaces/userLogin";
 import UserLog from "./interfaces/userLog.interface";
 import { UserInfo } from "./interfaces/user.interface";
 import { users, userLogs } from "./datasource";
-
+import UserLoginResult from "./interfaces/userLoginResult.inteface";
+const jwt = require("jsonwebtoken");
 export default class DataLayer {
-  async login(userLogin: UserLogin): Promise<string> {
+  userTokens: string[] = [];
+
+  async login(
+    userLogin: UserLogin,
+    secrectKey: string
+  ): Promise<UserLoginResult> {
     let userInfo = users.find(
       (user) =>
         user.username == userLogin.username &&
         user.password == userLogin.password
     );
     if (!userInfo) throw new GraphQLError("username and password is wrong");
-    return userInfo.fullname;
+
+    const accessToken = jwt.sign(
+      {
+        sub: userInfo.userId,
+        username: userInfo.username,
+      },
+      secrectKey
+    );
+    //simple token  manager
+    this.userTokens.push(accessToken);
+    return {
+      username: userInfo.username,
+      accessToken,
+    };
   }
 
   async getAllUsers(): Promise<UserInfo[]> {
@@ -34,5 +53,10 @@ export default class DataLayer {
   async getUserInfo(userId: string): Promise<any | undefined> {
     const userInfo = users.find((user) => user.userId == userId);
     return { fullname: userInfo?.fullname };
+  }
+
+  checkToken(accessToken: string): void {
+    if (!accessToken || !this.userTokens.find((item) => item == accessToken))
+      throw new GraphQLError("Forbidden access");
   }
 }

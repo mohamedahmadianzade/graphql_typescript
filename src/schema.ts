@@ -15,9 +15,14 @@ interface UserInfoForLog{
     fullname:String
 }
 
+type UserLoginResult{
+    username:String 
+    accessToken:String
+}
+
 
 type Query{
-    login(username:String,password:String):String
+    login(username:String,password:String):UserLoginResult
     logs:[Log]
     logByUserId(userId:String):[Log]
     users:[User]
